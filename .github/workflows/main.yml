@@ -106,6 +106,15 @@ jobs:
             terraform import aws_security_group.allow_http $sg_id
           fi
 
-      # Step 6: Destroy the infrastructure
+      # Step 6: Check if the EC2 instance exists and import it if it does
+      - name: Check and import existing EC2 instance
+        id: check_import_ec2
+        run: |
+          instance_id=$(aws ec2 describe-instances --filters Name=tag:Name,Values=my\ ec2 --query "Reservations[0].Instances[0].InstanceId" --output text)
+          if [ "$instance_id" != "None" ]; then
+            terraform import aws_instance.my_server $instance_id
+          fi
+
+      # Step 7: Destroy the infrastructure
       - name: Terraform Destroy
         run: terraform destroy -auto-approve # Auto-approve flag skips manual confirmation
