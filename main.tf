@@ -12,6 +12,7 @@ locals {
 resource "aws_security_group" "allow_http" {
   name        = "allow_http"
   description = "Allow HTTP inbound traffic"
+  vpc_id      = "vpc-0e12b04532f7736be"
 
   ingress {
     from_port   = 80
