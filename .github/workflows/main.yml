@@ -97,6 +97,15 @@ jobs:
       - name: Terraform Init
         run: terraform init -backend-config="bucket=${{ vars.S3_BUCKET }}" -backend-config="key=${{ vars.S3_KEY }}" -backend-config="region=${{ vars.AWS_REGION }}"
 
-      # Step 5: Destroy the infrastructure
+      # Step 5: Check if the security group exists and import it if it does
+      - name: Check and import existing security group
+        id: check_import_sg
+        run: |
+          sg_id=$(aws ec2 describe-security-groups --filters Name=group-name,Values=allow_http --query "SecurityGroups[0].GroupId" --output text)
+          if [ "$sg_id" != "None" ]; then
+            terraform import aws_security_group.allow_http $sg_id
+          fi
+
+      # Step 6: Destroy the infrastructure
       - name: Terraform Destroy
         run: terraform destroy -auto-approve # Auto-approve flag skips manual confirmation
