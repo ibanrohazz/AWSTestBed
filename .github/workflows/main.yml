@@ -47,11 +47,16 @@ jobs:
       - name: Terraform Init
         run: terraform init -backend-config="bucket=${{ vars.S3_BUCKET }}" -backend-config="key=${{ vars.S3_KEY }}" -backend-config="region=${{ vars.AWS_REGION }}"
 
-      # Step 5: Preview the infrastructure changes
+      # Step 5: Import existing security group (if it exists)
+      - name: Import existing security group
+        run: terraform import aws_security_group.allow_http <security-group-id>
+        continue-on-error: true
+
+      # Step 6: Preview the infrastructure changes
       - name: Terraform Plan
         run: terraform plan
 
-      # Step 6: Apply the infrastructure changes
+      # Step 7: Apply the infrastructure changes
       - name: Terraform Apply
         run: terraform apply -auto-approve # Auto-approve flag skips manual confirmation
 
